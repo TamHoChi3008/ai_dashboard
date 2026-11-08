@@ -6,6 +6,7 @@ import { ProfileDialog } from './components/ProfileDialog'
 import { cycleTab, moveById, tabAfterClose } from '@shared/order'
 import { confirmDialog, DialogHost } from './dialogs'
 import { Overview } from './components/Overview'
+import { UpdateButton } from './components/UpdateButton'
 
 /** Id của tab tổng quan (không phải profile). */
 const OVERVIEW = '__overview__'
@@ -174,6 +175,8 @@ export function App() {
         <button className="tab add" onClick={() => setEditing('new')} title="Thêm profile (tài khoản)">
           +
         </button>
+        <span className="grow" />
+        <UpdateButton />
       </header>
 
       <main className="content">

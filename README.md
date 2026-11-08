@@ -81,6 +81,25 @@ npm run dist
 > - PowerShell: `Remove-Item Env:ELECTRON_RUN_AS_NODE; npm run dev`
 > - Git Bash: `env -u ELECTRON_RUN_AS_NODE npm run dev`
 
+## Phát hành bản mới và tự cập nhật
+
+Repo: https://github.com/TamHoChi3008/ai_dashboard. App đã cài tự kiểm tra bản mới trên **GitHub Releases**
+(15 giây sau khi mở, rồi mỗi 6 giờ). Có bản mới thì nút phiên bản ở góc phải thanh tab hiện **"● Cập nhật"**:
+bấm → **Tải bản vX** → **Khởi động lại để cài** (hoặc để đó, bản mới tự cài khi tắt app). Bản `npm run dev` không tự cập nhật.
+
+**Ra bản mới** (một lệnh: test → tăng version → commit + tag → push → build → tải lên Release):
+
+```powershell
+$env:GH_TOKEN="github_pat_..."   # một lần cho mỗi cửa sổ terminal
+npm run release                  # 0.2.0 → 0.2.1 (patch)
+npm run release -- minor         # 0.2.1 → 0.3.0
+```
+
+- `GH_TOKEN`: tạo ở https://github.com/settings/personal-access-tokens/new, **Repository access** chỉ chọn `ai_dashboard`,
+  **Permissions → Contents: Read and write**. Không lưu token vào code hay commit.
+- Phải commit hết thay đổi và đang ở nhánh `main` trước khi chạy (script sẽ báo nếu chưa).
+- Nội dung thay đổi: sửa phần mô tả của Release trên GitHub, app sẽ hiện nó trong popup cập nhật.
+
 ## Đóng gói thành bộ cài (.exe)
 
 `npm run dist` chạy hai bước:

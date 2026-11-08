@@ -82,6 +82,24 @@ export interface TrashedSession {
   deletedAt: number
 }
 
+/** Trạng thái tự cập nhật (GitHub Releases). */
+export interface UpdateState {
+  /**
+   * unsupported: bản dev · idle: chưa kiểm tra · checking · latest: đang là bản mới nhất ·
+   * available: có bản mới · downloading · downloaded: chờ khởi động lại để cài · error
+   */
+  status: 'unsupported' | 'idle' | 'checking' | 'latest' | 'available' | 'downloading' | 'downloaded' | 'error'
+  /** Phiên bản đang chạy. */
+  current: string
+  /** Phiên bản mới (khi có). */
+  version?: string
+  notes?: string
+  releaseDate?: string
+  percent?: number
+  checkedAt?: number
+  error?: string
+}
+
 export interface UsageWindow {
   key: string
   label: string
@@ -162,6 +180,12 @@ export interface BoardApi {
   saveLayout(profileId: string, layout: WorkspaceLayout): void
   getStats(profileId: string, days: number): Promise<ProfileStats>
   appInfo(): Promise<{ isDev: boolean; version: string }>
+  getUpdateState(): Promise<UpdateState>
+  checkForUpdate(): Promise<UpdateState>
+  downloadUpdate(): Promise<void>
+  /** Thoát app và cài bản đã tải (cài xong tự mở lại). */
+  installUpdate(): Promise<void>
+  onUpdateState(cb: (s: UpdateState) => void): () => void
   /** Id các profile đã đóng tab. */
   getClosedProfiles(): Promise<string[]>
   setClosedProfiles(ids: string[]): void

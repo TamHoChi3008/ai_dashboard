@@ -1580,3 +1580,58 @@ button.model-badge:hover {
   color: var(--accent);
   font-size: 11px;
 }
+
+/* ---- cập nhật phiên bản ---- */
+.tabs .grow {
+  flex: 1;
+}
+.update-anchor {
+  position: relative;
+  align-self: center;
+  margin-right: 10px;
+}
+.update-btn {
+  font-size: 12px;
+  padding: 3px 9px;
+  color: var(--muted);
+  background: transparent;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.update-btn.has-new {
+  color: var(--text);
+  border-color: var(--running);
+}
+.update-dot {
+  color: var(--running);
+  font-weight: 600;
+}
+.update-pop {
+  /* fixed: thanh tab có overflow-x nên popup absolute sẽ bị cắt */
+  position: fixed;
+  right: 12px;
+  top: 52px;
+  width: 340px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+.update-pop a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.update-notes {
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 6px 8px;
+}

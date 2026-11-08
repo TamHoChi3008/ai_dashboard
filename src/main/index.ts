@@ -32,6 +32,7 @@ import type { WorkspaceLayout } from '@shared/layout'
 import { getLayout, setLayout } from './layout'
 import { getStats } from './stats'
 import { readAttachments } from './attachments'
+import { checkForUpdate, downloadUpdate, getUpdateState, initUpdater, installUpdate } from './updater'
 import { addTrashed, listTrashed, purgeExpired, purgeTrashed, restoreTrashed } from './sessionTrash'
 
 /** Bản chạy bằng `npm run dev` / `npm start` (không phải bản đã cài). */
@@ -172,6 +173,10 @@ function registerIpc() {
   ipcMain.handle('stats:get', async (_e, profileId: string, days: number) => getStats(await getProfile(profileId), days))
   ipcMain.handle('profiles:closed', () => readAppSettings().closedProfiles ?? [])
   ipcMain.on('profiles:setClosed', (_e, ids: string[]) => updateAppSettings({ closedProfiles: Array.isArray(ids) ? ids.map(String) : [] }))
+  ipcMain.handle('update:state', () => getUpdateState())
+  ipcMain.handle('update:check', () => checkForUpdate())
+  ipcMain.handle('update:download', () => downloadUpdate())
+  ipcMain.handle('update:install', () => installUpdate())
   ipcMain.handle('app:info', () => ({ isDev, version: app.getVersion() }))
   ipcMain.on('chat:close', (_e, chatId: string) => chatClose(chatId))
   ipcMain.on('chat:suspend', (_e, chatId: string) => chatSuspend(chatId))
@@ -300,6 +305,7 @@ app.whenReady().then(async () => {
   registerIpc()
   await refreshWatchers()
   createWindow()
+  initUpdater((s) => send('update:changed', s))
   // session nằm trong thùng rác quá 30 ngày → xoá hẳn (lúc mở app và mỗi 6 giờ)
   const sweep = () => void purgeExpired().catch(() => undefined)
   setTimeout(sweep, 10_000)
