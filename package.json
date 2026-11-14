@@ -1,6 +1,6 @@
 {
   "name": "ai-board",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Dashboard quản lý agent, account và chat session (Claude Code, Codex)",
   "main": "out/main/index.js",
   "private": true,
