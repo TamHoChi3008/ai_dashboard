@@ -32,6 +32,7 @@ import type { WorkspaceLayout } from '@shared/layout'
 import { getLayout, setLayout } from './layout'
 import { getStats } from './stats'
 import { readAttachments } from './attachments'
+import { migrateAppNames, writeSessionTitle } from './sessionTitle'
 import { checkForUpdate, downloadUpdate, getUpdateState, initUpdater, installUpdate } from './updater'
 import { addTrashed, listTrashed, purgeExpired, purgeTrashed, restoreTrashed } from './sessionTrash'
 
@@ -92,9 +93,13 @@ function registerIpc() {
   ipcMain.handle('sessions:setFlag', (_e, profileId: string, sessionId: string, flag: FlagName, on: boolean) =>
     setFlag(profileId, sessionId, flag, on)
   )
-  ipcMain.handle('sessions:rename', (_e, profileId: string, sessionId: string, name: string, original?: string) =>
-    renameSession(profileId, sessionId, name, original)
-  )
+  // đổi tên: ghi vào dữ liệu của CLI (Claude Code / Codex cùng thấy), bỏ tên cũ chỉ lưu trong app (nếu có)
+  ipcMain.handle('sessions:rename', async (_e, profileId: string, file: string, name: string) => {
+    const p = await getProfile(profileId)
+    assertInside(sessionRoot(p), file)
+    await writeSessionTitle(p, file, String(name ?? ''))
+    return renameSession(profileId, sessionIdFromFile(p, file), '')
+  })
   ipcMain.handle('sessions:transcript', async (_e, profileId: string, file: string) => {
     const p = await getProfile(profileId)
     assertInside(sessionRoot(p), file)
@@ -306,6 +311,12 @@ app.whenReady().then(async () => {
   await refreshWatchers()
   createWindow()
   initUpdater((s) => send('update:changed', s))
+  // tên session cũ chỉ lưu trong app → ghi vào file session để Claude Code cùng thấy
+  void migrateAppNames(
+    await loadProfiles(),
+    async (id) => (await getFlags(id)).names ?? {},
+    (pid, sid) => renameSession(pid, sid, '')
+  ).catch(() => undefined)
   // session nằm trong thùng rác quá 30 ngày → xoá hẳn (lúc mở app và mỗi 6 giờ)
   const sweep = () => void purgeExpired().catch(() => undefined)
   setTimeout(sweep, 10_000)

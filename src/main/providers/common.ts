@@ -2,6 +2,8 @@ import type { ChatItem, SessionStatus, ToolDetail } from '@shared/types'
 
 export interface ParsedSession {
   title: string
+  /** Tiêu đề tự động (không tính tên người dùng đặt): dùng khi đặt lại về tên gốc. */
+  autoTitle: string
   cwd: string
   source: string
   items: ChatItem[]

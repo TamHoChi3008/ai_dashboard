@@ -135,6 +135,11 @@ export async function listSessions(p: Profile, days: number, alwaysIds: string[]
   return [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt)
 }
 
+/** Tiêu đề tự động của một file session (bỏ qua tên người dùng đặt). */
+export async function autoTitleOf(p: Profile, file: string): Promise<string> {
+  return (await parseFile(p.provider, file)).parsed.autoTitle
+}
+
 export async function readTranscript(p: Profile, file: string): Promise<Transcript> {
   const { parsed } = await parseFile(p.provider, file)
   const items = parsed.items

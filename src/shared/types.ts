@@ -147,8 +147,11 @@ export interface BoardApi {
   getSessionFlags(profileId: string): Promise<SessionFlags>
   /** Ghim / ẩn một session; trả về cờ mới của profile. */
   setSessionFlag(profileId: string, sessionId: string, flag: FlagName, on: boolean): Promise<SessionFlags>
-  /** Đổi tên session trong app (tên rỗng = về tên gốc); trả về cờ mới của profile. */
-  renameSession(profileId: string, sessionId: string, name: string, original?: string): Promise<SessionFlags>
+  /**
+   * Đổi tên session: ghi vào file của CLI nên Claude Code (/resume, VS Code) và Codex cùng thấy.
+   * Tên rỗng = về tên tự động. Trả về cờ mới của profile.
+   */
+  renameSession(profileId: string, filePath: string, name: string): Promise<SessionFlags>
   /** Xoá session: chuyển vào Thùng rác hoặc xoá vĩnh viễn; trả về số file/thư mục đã xoá. */
   deleteSession(profileId: string, session: { filePath: string; title: string; cwd: string }, mode: 'trash' | 'permanent'): Promise<number>
   /** Session trong thùng rác của profile (mới xoá trước). */

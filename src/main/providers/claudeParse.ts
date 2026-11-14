@@ -5,6 +5,8 @@ import { ParsedSession, clip, decideStatus, safeJson, summarizeToolInput, toolDe
 export function parseClaude(lines: string[], mtime: number, now: number): ParsedSession {
   const items: ChatItem[] = []
   let aiTitle = ''
+  // tên đặt bằng /rename (hoặc từ AI Board): dòng mới nhất thắng
+  let customTitle = ''
   let summary = ''
   let firstPrompt = ''
   let cwd = ''
@@ -16,6 +18,7 @@ export function parseClaude(lines: string[], mtime: number, now: number): Parsed
     const d = safeJson(line)
     if (!d || typeof d !== 'object') continue
     if (d.type === 'ai-title' && d.aiTitle) aiTitle = d.aiTitle
+    if (d.type === 'custom-title' && typeof d.customTitle === 'string' && d.customTitle.trim()) customTitle = d.customTitle.trim()
     if (d.type === 'summary' && d.summary) summary = d.summary
     if (d.type !== 'user' && d.type !== 'assistant') continue
     if (d.isSidechain) continue
@@ -52,7 +55,8 @@ export function parseClaude(lines: string[], mtime: number, now: number): Parsed
   }
 
   return {
-    title: aiTitle || summary || firstPrompt || '(chưa có tiêu đề)',
+    title: customTitle || aiTitle || summary || firstPrompt || '(chưa có tiêu đề)',
+    autoTitle: aiTitle || summary || firstPrompt || '(chưa có tiêu đề)',
     cwd,
     source: source || 'claude',
     items,

@@ -47,6 +47,7 @@ export function parseCodex(lines: string[], mtime: number, now: number): ParsedS
 
   return {
     title: firstPrompt || '(chưa có tiêu đề)',
+    autoTitle: firstPrompt || '(chưa có tiêu đề)',
     cwd,
     source: source || 'codex',
     items,

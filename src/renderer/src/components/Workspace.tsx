@@ -158,9 +158,12 @@ export function Workspace({ profile, visible, tick, fileVersions, onEditProfile,
   const [renaming, setRenaming] = useState('')
   const rename = async (s: SessionSummary, name: string) => {
     setRenaming('')
-    const orig = originalTitle(s.id)
+    if (name.trim() === s.title) return // không đổi gì
     try {
-      setFlags(await api.renameSession(profile.id, s.id, name, orig))
+      setFlags(await api.renameSession(profile.id, s.filePath, name))
+      // CLI đang chạy trong khung chat còn giữ tên cũ trong bộ nhớ → đóng để lần gửi sau đọc lại từ file
+      for (const p of panes) if (p.chat && sessionOf(p)?.filePath === s.filePath) api.chatSuspend(p.key)
+      await load()
     } catch (e) {
       void alertDialog(`Không đổi tên được: ${String((e as Error).message ?? e)}`)
     }
