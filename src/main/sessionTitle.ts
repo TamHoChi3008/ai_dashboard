@@ -16,11 +16,29 @@ export async function writeSessionTitle(p: Profile, file: string, name: string):
   const title = clean || (await autoTitleOf(p, file))
   const id = sessionIdFromFile(p, file)
   if (p.provider === 'claude') {
+    await relabelEntrypoint(file)
     await appendLine(file, { type: 'custom-title', sessionId: id, customTitle: title })
   } else {
     await appendLine(join(p.configDir, 'session_index.jsonl'), { id, thread_name: title, updated_at: new Date().toISOString() })
   }
   return title
+}
+
+const SDK_ENTRY = /"entrypoint":"sdk-(?:cli|ts|py)"/g
+
+/**
+ * Session do bản app cũ tạo mang entrypoint sdk-* nên extension VS Code ẩn khỏi danh sách hội thoại.
+ * Khi người dùng đặt tên (tức là muốn thấy session ở mọi nơi) thì đổi nhãn thành "cli".
+ * Ghi qua file tạm rồi rename để không làm hỏng file nếu bị ngắt giữa chừng.
+ */
+export async function relabelEntrypoint(file: string): Promise<boolean> {
+  const text = await fs.readFile(file, 'utf8')
+  if (!SDK_ENTRY.test(text)) return false
+  SDK_ENTRY.lastIndex = 0
+  const tmp = file + '.aib-tmp'
+  await fs.writeFile(tmp, text.replace(SDK_ENTRY, '"entrypoint":"cli"'), 'utf8')
+  await fs.rename(tmp, file)
+  return true
 }
 
 /** Thêm một dòng JSON vào cuối file JSONL; nếu dòng cuối chưa xuống dòng thì thêm trước. */

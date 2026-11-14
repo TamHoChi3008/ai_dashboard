@@ -42,6 +42,18 @@ describe('tên session đồng bộ với Claude Code', () => {
     expect(parseClaude(lines, 0, 0).title).toBe('Chào hỏi')
   })
 
+  it('Claude: đổi tên thì đổi entrypoint sdk-* thành cli để VS Code hiện session', async () => {
+    const file = join(dir, 'aaaaaaaa-2222-3333-4444-555555555555.jsonl')
+    const rec = (e: string) => JSON.stringify({ type: 'user', entrypoint: e, cwd: 'D:\\x', message: { role: 'user', content: 'hi' } })
+    writeFileSync(file, [rec('sdk-cli'), rec('sdk-ts'), rec('cli')].join('\n') + '\n')
+    const p: Profile = { id: 'p', name: 'C', provider: 'claude', configDir: dir, color: '#000' }
+    await writeSessionTitle(p, file, 'Tên mới')
+    const text = readFileSync(file, 'utf8')
+    expect(text).not.toMatch(/sdk-/)
+    expect(text.match(/"entrypoint":"cli"/g)).toHaveLength(3)
+    expect(parseClaude(text.trim().split('\n'), 0, 0).title).toBe('Tên mới')
+  })
+
   it('Codex: thêm dòng thread_name vào session_index.jsonl', async () => {
     const file = join(dir, `rollout-2026-11-14T10-00-00-${ID}.jsonl`)
     writeFileSync(file, JSON.stringify({ type: 'session_meta', payload: { cwd: 'D:\\x' } }) + '\n')
